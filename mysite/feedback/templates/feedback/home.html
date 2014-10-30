@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block home %} class="active" {% endblock %}
+{% block main %}
+<h1 class="page-header">Howdy, {{ full_name }}!</h1>
+
+{% if courses %}
+<table class="table table-striped">
+    <thead>
+        <th>Courses</th>
+    </thead>
+    
+    <tbody>
+    {%for course in courses %}
+        <tr>
+            <td>{{ course.name }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>  
+</table>
+
+{%else %}
+    <p>Ooh...  It looks like there are no courses. Please contact the administrator for more details.</p>
+{%endif %}
+
+{% endblock %}
