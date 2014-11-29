@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block home %} class="active" {% endblock %}
+{% block main %}
+
+<h2 class="sub-header">{{course_name}}</h2>
+<p style="width:80%; margin: 20px 0px 40px 0px;">{{course.message}}</p>
+
+<h4 style="margin:20px 0px 10px 0px;">Overall Course</h4>
+<form action="/feedback/{{ course.id }}/submitted/" method="post">
+    {% csrf_token %}
+    {% for field in course_form %}
+        <p>{{ field.label }}</p>
+        <p>{{ field }}</p>
+    {% endfor %}
+    <button type="submit" class="submit">Submit</button>
+</form>
+
+{% endblock %}

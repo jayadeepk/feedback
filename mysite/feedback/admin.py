@@ -1,21 +1,20 @@
 from django.contrib import admin
-from feedback.models import Task, Course, Professor, CourseProfessor
+from feedback.models import Task, Course, User, CourseUser
 
-class CourseProfessorInline(admin.TabularInline):
-
-    model = CourseProfessor
+class CourseUserInline(admin.TabularInline):
+    model = CourseUser
     extra = 2
 
 class CourseAdmin(admin.ModelAdmin):
     inlines = [
-        CourseProfessorInline,
+        CourseUserInline,
     ]
     
 
 class TaskAdmin(admin.ModelAdmin):
     readonly_fields = ('student',)
+    readonly_fields = ('course')
 
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Task)
-admin.site.register(Professor)
-# admin.site.register(TemplateGroup)
+admin.site.register(CourseUser)

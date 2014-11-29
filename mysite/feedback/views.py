@@ -1,5 +1,5 @@
 from django.shortcuts import render, render_to_response
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.views import generic
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_protect
@@ -12,9 +12,10 @@ from feedback import forms
 from feedback.models import Task, Course
 from django.contrib.auth.models import Group
 
-#------------------------------------------------------------
-#       User Authentication
-#------------------------------------------------------------
+
+#----------------------------------------------------------------
+# User Authentication
+#----------------------------------------------------------------
 
 def login(request):
     """
@@ -49,9 +50,8 @@ def logout(request):
 
 
 #------------------------------------------------------------
-#       Student's dashboard
+# Student's dashboard
 #------------------------------------------------------------
-
 
 @login_required(login_url="/feedback/")
 def home(request):
@@ -62,11 +62,58 @@ def home(request):
     view '/<course_id>/course' where he can see previous feedbacks
     on the course and 'add new feedback' button.
     """
-
-    course_list=Course.objects.all()
+    user = request.user
+    courseuser_list = user.courseuser_set.all()
     full_name = request.user.username
     return render_to_response('feedback/home.html',
                             {'full_name': full_name.capitalize(),
                             'username': request.user.username,
-                            'courses': course_list,},
+                            'courseusers': courseuser_list,},
                             context_instance = RequestContext(request))
+
+
+@login_required(login_url="/feedback/")
+def course_detail(request, course_id):
+    """
+    Displays information about a particular course.
+
+    User can enter the feedback about the overall course or go to
+    feedback forms of individual professors.
+    """
+    course = get_object_or_404(Course, id=course_id)
+    courseuser = get_object_or_404(course.courseuser_set, user = request.user)
+
+    if(courseuser.feedback_status):
+        return HttpResponseRedirect("/feedback/home/")
+
+    return render_to_response('feedback/course_detail.html',
+                            {'course':course,
+                            'course_name':course.name.capitalize(),
+                            'course_form':forms.CourseTaskForm()},
+                            context_instance=RequestContext(request))
+
+
+@login_required(login_url="/feedback/")
+def course_form_submitted(request, course_id):
+    """
+    Saves the feedback form on the overall course
+    """
+    course = get_object_or_404(Course, id=course_id)
+    courseuser = get_object_or_404(course.courseuser_set, user = request.user)
+    
+    if(courseuser.feedback_status):
+        return HttpResponseRedirect("/feedback/home/")
+
+    if request.method == 'POST':
+        form = forms.CourseTaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.student = request.user
+            task.course = course
+            task.courseuser = courseuser
+            task.save()
+            courseuser.feedback_status = True
+            courseuser.save()
+
+    return HttpResponseRedirect("/feedback/home/")
+

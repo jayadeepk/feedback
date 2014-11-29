@@ -8,7 +8,6 @@ urlpatterns = [
         url('logout/$', views.logout, name='logout'),
         url('home/$', views.home, name='home'),
 
-        # url(r'^(?P<task_id>\d+)/previous-feedback/$',views.usertask_detail),
-        # url('new-feedback/$', views.new_feedback),
-        # url('submitted/$', views.new_feedback),
+        url(r'^(?P<course_id>\d+)/course/$',views.course_detail),
+        url(r'^(?P<course_id>\d+)/submitted/$',views.course_form_submitted),
 ]
