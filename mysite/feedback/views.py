@@ -9,9 +9,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404
 from feedback import forms
-from feedback.models import Task, Course
+from feedback.models import Task, Course, Student, Professor
 from django.contrib.auth.models import Group
-
 
 #----------------------------------------------------------------
 # User Authentication
@@ -25,17 +24,24 @@ def login(request):
         username = request.POST.get('username', '')
         password = request.POST.get('password', '')
         user = auth.authenticate(username=username, password=password)
-
         if user is not None:
-            # Since the user is authenticated, Log the user in.
             auth.login(request, user)
-            if user.groups.filter(name='Professors'):
-                return HttpResponseRedirect('/feedback/prof/home/')
-            elif user.groups.filter(name='Students'):
+            try:
+                student = request.user.student
+            except Student.DoesNotExist:
+                student = None
+            try:
+                professor = request.user.professor
+            except Professor.DoesNotExist:
+                professor = None
+            if professor is None and student is not None:
                 return HttpResponseRedirect('/feedback/student/home/')
+            elif professor is not None and student is None:
+                return HttpResponseRedirect('/feedback/prof/home/')
             else:
-                return HttpResponse('You are not registered as a student or a Professor.',
-                                    'Please contact netadmin.')
+                response = str(student)
+                response+=str(professor)
+                return HttpResponse(response)
 
         else:
             # Return an 'invalid login' error message.
@@ -60,7 +66,6 @@ def logout(request):
 #------------------------------------------------------------
 
 @login_required(login_url="/feedback/")
-@user_passes_test(lambda u: u.has_perm('feedback.can_access_student_views'))
 def student_home(request):
     """
     Displays the list of courses
@@ -69,18 +74,20 @@ def student_home(request):
     view '/<course_id>/course' where he can see previous feedbacks
     on the course and 'add new feedback' button.
     """
-    user = request.user
-    courseuser_list = user.courseuser_set.all()
+    try:
+        student = request.user.student
+    except Student.DoesNotExist:
+        raise Http404
+    coursestudents = request.user.student.coursestudent_set.all()
     full_name = request.user.username
     return render_to_response('feedback/student/home.html',
                             {'full_name': full_name.capitalize(),
                             'username': request.user.username,
-                            'courseusers': courseuser_list,},
+                            'coursestudents': coursestudents,},
                             context_instance = RequestContext(request))
 
 
 @login_required(login_url="/feedback/")
-@user_passes_test(lambda u: u.has_perm('feedback.can_access_student_views'))
 def student_course_detail(request, course_id):
     """
     Displays information about a particular course.
@@ -88,41 +95,51 @@ def student_course_detail(request, course_id):
     User can enter the feedback about the overall course or go to
     feedback forms of individual professors.
     """
+    try:
+        student = request.user.student
+    except Student.DoesNotExist:
+        raise Http404
     course = get_object_or_404(Course, id=course_id)
-    courseuser = get_object_or_404(course.courseuser_set, user = request.user)
+    coursestudent = get_object_or_404(course.coursestudent_set, student = student)
 
-    if(courseuser.feedback_status):
+    if(coursestudent.feedback_status):
         return HttpResponseRedirect("/feedback/student/home/")
+
+    courseprofessors = course.courseprofessor_set.all()
 
     return render_to_response('feedback/student/course_detail.html',
                             {'course':course,
-                            'course_name':course.name.capitalize(),
-                            'course_form':forms.CourseTaskForm()},
+                            'course_name': course.name.capitalize(),
+                            'course_form': forms.TaskForm(),
+                            'courseprofessors': courseprofessors},
                             context_instance=RequestContext(request))
 
 
 @login_required(login_url="/feedback/")
-@user_passes_test(lambda u: u.has_perm('feedback.can_access_student_views'))
 def student_course_form_submitted(request, course_id):
     """
     Saves the feedback form on the overall course
     """
+    try:
+        student = request.user.student
+    except Student.DoesNotExist:
+        raise Http404
     course = get_object_or_404(Course, id=course_id)
-    courseuser = get_object_or_404(course.courseuser_set, user = request.user)
+    coursestudent = get_object_or_404(course.coursestudent_set, student = student)
 
-    if(courseuser.feedback_status):
+    if(coursestudent.feedback_status):
         return HttpResponseRedirect("/feedback/student/home/")
 
     if request.method == 'POST':
-        form = forms.CourseTaskForm(request.POST)
+        form = forms.TaskForm(request.POST)
         if form.is_valid():
             task = form.save(commit=False)
-            task.student = request.user
+            task.student = student
             task.course = course
-            task.courseuser = courseuser
+            task.coursestudent = coursestudent
             task.save()
-            courseuser.feedback_status = True
-            courseuser.save()
+            coursestudent.feedback_status = True
+            coursestudent.save()
 
     return HttpResponseRedirect("/feedback/student/home/")
 
@@ -132,7 +149,6 @@ def student_course_form_submitted(request, course_id):
 #------------------------------------------------------------
 
 @login_required(login_url="/feedback/")
-@user_passes_test(lambda u: u.has_perm('feedback.can_access_professor_views'))
 def prof_home(request):
     """
     Displays the list of courses the professor is enrolled in
@@ -141,17 +157,19 @@ def prof_home(request):
     view '/<course_id>/course' where he can see previous feedbacks
     on the course and 'add new feedback' button.
     """
-    user = request.user
-    courseuser_list = user.courseuser_set.all()
+    try:
+        professor = request.user.professor
+    except Professor.DoesNotExist:
+        raise Http404
+    courses = professor.course_set.all()
     full_name = request.user.username
     return render_to_response('feedback/prof/home.html',
                             {'full_name': full_name.capitalize(),
                             'username': request.user.username,
-                            'courseusers': courseuser_list,},
+                            'courses': courses,},
                             context_instance = RequestContext(request))
 
 @login_required(login_url="/feedback/")
-@user_passes_test(lambda u: u.has_perm('feedback.can_access_professor_views'))
 def prof_course_detail(request, course_id):
     """
     Displays information about a particular course.
@@ -159,24 +177,30 @@ def prof_course_detail(request, course_id):
     User can enter the feedback about the overall course or go to
     feedback forms of individual professors.
     """
-    course = get_object_or_404(Course, id=course_id)
-    courseusers = course.courseuser_set.all()
+    try:
+        professor = request.user.professor
+    except Professor.DoesNotExist:
+        raise Http404
+    course = get_object_or_404(professor.course_set, id=course_id)
+    coursestudents = course.coursestudent_set.all()
     tasks = []
-    for courseuser in courseusers:
-        if courseuser.task_set.first() is not None:
-            tasks.append(courseuser.task_set.first())
+    for coursestudent in coursestudents:
+        if coursestudent.task_set.first() is not None:
+            tasks.append(coursestudent.task_set.first())
     return render_to_response('feedback/prof/course_detail.html',
                             {'tasks':tasks,
                             'course_name':course.name.capitalize(),},
                             context_instance=RequestContext(request))
 
-
 @login_required(login_url="/feedback/")
-@user_passes_test(lambda u: u.has_perm('feedback.can_access_professor_views'))
 def prof_task_detail(request, task_id):
     """
     Displays a particular feedback(task) to the professor
     """
+    try:
+        professor = request.user.professor
+    except Professor.DoesNotExist:
+        raise Http404
     task = get_object_or_404(Task, id=task_id)
     return render_to_response('feedback/prof/task_detail.html',
                             {'task':task,

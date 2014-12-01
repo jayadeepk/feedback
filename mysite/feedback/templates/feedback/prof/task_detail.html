@@ -1,9 +1,8 @@
-{% extends "base.html" %}
+{% extends "feedback/prof/base.html" %}
 {% block home %} class="active" {% endblock %}
 {% block main %}
 
-<h2 class="sub-header">Feedback on {{ course_name }}</h2>
-<hr>
+<h2 class="page-header">Feedback on {{ course_name }}</h2>
 <p>Questions</p>
 
 <table class="table table-striped">
@@ -18,4 +17,5 @@
         </tr>
     </tb>
 </table>
+
 {% endblock %}

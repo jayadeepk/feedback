@@ -1,29 +1,52 @@
 from django.db import models
 from django.contrib.auth.models import User, Group, Permission
 
+
+class Student(models.Model):
+    user = models.OneToOneField(User, primary_key=True)
+    def __str__(self):
+        return self.user.username
+
+class Professor(models.Model):
+    user = models.OneToOneField(User, primary_key=True)
+    def __str__(self):
+        return self.user.username
+    
 class Course(models.Model):
     """
     Each course has many users and many tasks.
     """ 
     name = models.CharField(max_length=128)
     message = models.TextField()
-    user = models.ManyToManyField(User, through='CourseUser')
+    student = models.ManyToManyField(Student, through='CourseStudent')
+    professor = models.ManyToManyField(Professor, through='CourseProfessor')
     starting_date = models.DateField(null=True)
     ending_date = models.DateField(null=True)
 
     def __str__(self):
         return self.name
 
-class CourseUser(models.Model):
+class CourseStudent(models.Model):
     """
     Many to many relation between Course and User
     """
     course = models.ForeignKey(Course)
-    user = models.ForeignKey(User)
+    student = models.ForeignKey(Student)
     feedback_status = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.username
+        return self.student.user.username
+
+
+class CourseProfessor(models.Model):
+    """
+    Many to many relation between Course and User
+    """
+    course = models.ForeignKey(Course)
+    professor = models.ForeignKey(Professor)
+
+    def __str__(self):
+        return self.professor.user.username
 
 class Task(models.Model):
     """
@@ -31,15 +54,15 @@ class Task(models.Model):
     Every task corresponds to a single course and a single
     student.
     """
-    student = models.ForeignKey(User)
+    student = models.ForeignKey(Student)
     course = models.ForeignKey(Course)
-    courseuser = models.ForeignKey(CourseUser)
+    coursestudent = models.ForeignKey(CourseStudent)
     opinion = models.TextField()
     suggestions = models.TextField()
     created_at = models.DateTimeField( auto_now_add = True, blank = True)
 
     def __str__(self):
-        return self.student.username
+        return self.student.user.username
 
 
 class TaskProfessor(models.Model):
@@ -50,11 +73,11 @@ class TaskProfessor(models.Model):
     strong_points = models.TextField()
     weak_points = models.TextField()
 
-class UserProfile(models.Model):
+class Permissions(models.Model):
     """
     Collection of students and professors
     """
-    user = models.OneToOneField(User, primary_key=True, related_name='profile')
+    user = models.OneToOneField(User, primary_key=True)
     is_professor = models.BooleanField(default=False)
 
     class Meta:

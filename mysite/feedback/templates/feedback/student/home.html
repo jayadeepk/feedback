@@ -1,9 +1,9 @@
 {% extends "feedback/student/base.html" %}
 {% block home %} class="active" {% endblock %}
 {% block main %}
-<h1 class="page-header">Welcome, {{ full_name }}!</h1>
+<h2 class="page-header">Welcome, {{ full_name }}!</h2>
 
-{% if courseusers %}
+{% if coursestudents %}
 <p>Here below are the courses you're enrolled in.</p>
 <table class="table table-striped" style="margin-top:20px;">
     <thead>
@@ -14,17 +14,17 @@
     </thead>
     
     <tbody>
-    {%for courseuser in courseusers %}
+    {%for coursestudent in coursestudents %}
         <tr>
-            {% if courseuser.feedback_status %}
-            <td>{{ courseuser.course.name }}</td>
+            {% if coursestudent.feedback_status %}
+            <td>{{ coursestudent.course.name }}</td>
             <td>Given</td>
             {% else %}
-            <td><a href="/feedback/{{courseuser.course.id}}/student/course/">{{ courseuser.course.name }}</a></td>
+            <td><a href="/feedback/{{coursestudent.course.id}}/student/course/">{{ coursestudent.course.name }}</a></td>
             <td>Not Given</td>
             {% endif %}
-            <td>{{ courseuser.course.starting_date }}</td>
-            <td>{{ courseuser.course.ending_date }}</td>
+            <td>{{ coursestudent.course.starting_date }}</td>
+            <td>{{ coursestudent.course.ending_date }}</td>
         </tr>
     {% endfor %}
     </tbody>  
