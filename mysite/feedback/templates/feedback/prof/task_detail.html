@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block home %} class="active" {% endblock %}
+{% block main %}
+
+<h2 class="sub-header">Feedback on {{ course_name }}</h2>
+<hr>
+<p>Questions</p>
+
+<table class="table table-striped">
+    <tb>
+        <tr>
+            <td><b>How do you feel about the course?</b></td>
+            <td>{{task.opinion}}</td>
+        </tr>
+        <tr>
+            <td><b>What can we do to make the course better next year?</b></td>
+            <td>{{task.suggestions}}</td>
+        </tr>
+    </tb>
+</table>
+{% endblock %}

@@ -6,7 +6,7 @@
 <p style="width:80%; margin: 20px 0px 40px 0px;">{{course.message}}</p>
 
 <h4 style="margin:20px 0px 10px 0px;">Overall Course</h4>
-<form action="/feedback/{{ course.id }}/submitted/" method="post">
+<form action="/feedback/{{ course.id }}/student/submitted/" method="post">
     {% csrf_token %}
     {% for field in course_form %}
         <p>{{ field.label }}</p>

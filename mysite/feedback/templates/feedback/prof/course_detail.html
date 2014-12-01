@@ -1,0 +1,25 @@
+{% extends "feedback/prof/base.html" %}
+{% block home %} class="active" {% endblock %}
+{% block main %}
+<h2 class="page-header">{{ course_name }}</h2>
+
+{% if tasks %}
+<p>List of feedbacks given by students on this course.</p>
+<table class="table table-striped" style="margin-top:20px;">
+    <thead>
+        <th>Date Given</th>
+    </thead>
+    
+    <tbody>
+    {%for task in tasks %}
+        <tr>
+            <td><a href="/feedback/{{ task.id }}/prof/feedback">{{ task.created_at }}</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>  
+</table>
+{%else %}
+    <p>No feedbacks are given for this course yet.</p>
+{%endif %}
+
+{% endblock %}

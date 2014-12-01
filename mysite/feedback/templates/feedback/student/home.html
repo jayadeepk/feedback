@@ -1,0 +1,48 @@
+{% extends "feedback/student/base.html" %}
+{% block home %} class="active" {% endblock %}
+{% block main %}
+<h1 class="page-header">Welcome, {{ full_name }}!</h1>
+
+{% if courseusers %}
+<p>Here below are the courses you're enrolled in.</p>
+<table class="table table-striped" style="margin-top:20px;">
+    <thead>
+        <th>Courses</th>
+        <th>Status</th>
+        <th>Starting date</th>
+        <th>Ending date</th>
+    </thead>
+    
+    <tbody>
+    {%for courseuser in courseusers %}
+        <tr>
+            {% if courseuser.feedback_status %}
+            <td>{{ courseuser.course.name }}</td>
+            <td>Given</td>
+            {% else %}
+            <td><a href="/feedback/{{courseuser.course.id}}/student/course/">{{ courseuser.course.name }}</a></td>
+            <td>Not Given</td>
+            {% endif %}
+            <td>{{ courseuser.course.starting_date }}</td>
+            <td>{{ courseuser.course.ending_date }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>  
+</table>
+<div style="margin-top:100px;">
+<h4>Note:</h4>
+    <ul>
+        <li>Please respond to each statement carefully. Your independent and well-considered responses will contribute to the institute's ongoing effort to improve the teaching-learning environment.</li>
+        <li>If some of the statements/comments are not applicable to the course (e.g. comments on the lab work in some mathematics course), the corresponding space should be left blank.</li>
+        <li>Detailed comments at appropriate spaces are welcome.</li>
+        <li>Do not write your name/roll number anyehere.</li>
+        <li>Your responses will remain confidential.</li>
+    </ul>
+</div>
+
+{%else %}
+    <p>It looks like there are no courses you have been allotted to</p>
+    <p>Please contact the administrator for more details.</p>
+{%endif %}
+
+{% endblock %}

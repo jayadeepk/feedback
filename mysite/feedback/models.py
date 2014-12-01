@@ -41,6 +41,28 @@ class Task(models.Model):
     def __str__(self):
         return self.student.username
 
+
+class TaskProfessor(models.Model):
+    """
+    Feedback(task) on each professor
+    """
+    task = models.ForeignKey(Task)
+    strong_points = models.TextField()
+    weak_points = models.TextField()
+
+class UserProfile(models.Model):
+    """
+    Collection of students and professors
+    """
+    user = models.OneToOneField(User, primary_key=True, related_name='profile')
+    is_professor = models.BooleanField(default=False)
+
+    class Meta:
+        permissions = (('can_access_professor_views', 'Can access professor views'),
+            ('can_access_student_views', 'Can access student views'),)
+    def __str__(self):
+        return self.user.username
+
 #-----------------------------------
 # class TaskProfessor(models.Model):
 #     """
