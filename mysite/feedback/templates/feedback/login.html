@@ -21,12 +21,20 @@
             {% csrf_token %}
             <h2 class="form-signin-heading">Log in</h2>
             {% if form_errors %}
-                <p><font color="red">Your username and password didn't match. Please try again.</font></p>
+                <p><font color="red">{{ form_errors }}</font></p>
             {% endif %}
             {% if form_logout_message %}
-                <p>You have successfully logged out.</p>
+                <p>{{ form_logout_message }}</p>
             {% endif %}
 
+            <div style="margin:5px 0px 10px 0px; border-radius: 5px; padding:10px 5px 15px 20px; background:#eaeaea">
+                {% for field in captchaform %}
+                    <div class="fieldWrapper">
+                    <span style="font-size:12px;">{{ field.label_tag }}</span>
+                    </br>{{ field }}
+                    </div>
+                {% endfor %}
+            </div>
             <input type="text" name="username" id="username" class="form-control" placeholder="Username" required autofocus>
             <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>

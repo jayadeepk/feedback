@@ -57,9 +57,13 @@ class Task(models.Model):
     student = models.ForeignKey(Student)
     course = models.ForeignKey(Course)
     coursestudent = models.ForeignKey(CourseStudent)
+    rating1 = models.IntegerField(default=2)
+    rating2 = models.IntegerField(default=2)
+    rating3 = models.IntegerField(default=2)
     opinion = models.TextField()
     suggestions = models.TextField()
     created_at = models.DateTimeField( auto_now_add = True, blank = True)
+
 
     def __str__(self):
         return self.student.user.username
@@ -70,6 +74,10 @@ class TaskProfessor(models.Model):
     Feedback(task) on each professor
     """
     task = models.ForeignKey(Task)
+    task = models.ForeignKey(Task)
+    rating1 = models.IntegerField(default=2)
+    rating2 = models.IntegerField(default=2)
+    rating3 = models.IntegerField(default=2)
     strong_points = models.TextField()
     weak_points = models.TextField()
 

@@ -37,6 +37,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'feedback',
+    'captcha',
+    'floppyforms'
 )
 
 MIDDLEWARE_CLASSES = (

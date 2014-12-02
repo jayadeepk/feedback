@@ -15,7 +15,9 @@
     <link href= "{% static 'feedback/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
 
     <link href= "{% static 'feedback/css/simple-sidebar.css' %}" rel="stylesheet" type="text/css">
-
+    <link href="{% static 'feedback/css/jquery-ui-slider-pips.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'feedback/css/jquery-ui.min.css' %}" rel="stylesheet" type="text/css">
+    
     <!--link href="{% static 'feedback/dashboard.css' %}" rel="stylesheet" type="text/css"-->
 
     <script src="{% static 'feedback/js/ie-emulation-modes-warning.js' %}"></script>
@@ -55,9 +57,10 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="{% static 'feedback/js/jquery-1.11.0.js' %}"></script>
+    <script src="{% static 'feedback/js/jquery-1.11.1.min.js' %}"></script>
+    <script src="{% static 'feedback/js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'feedback/js/jquery-ui-slider-pips.min.js' %}"></script>
     <script src="{% static 'feedback/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'feedback/js/docs.min.js' %}"></script>
     <script>
     $("#menu-toggle").click(function(e) {
         e.preventDefault();
