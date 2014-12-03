@@ -1,13 +1,90 @@
-{% extends "feedback/prof/base.html" %}
-{% block home %} class="active" {% endblock %}
-{% block main %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Course Feedback Portal</title>
+
+    <!-- Bootstrap core CSS -->
+    {% load staticfiles %}
+    <link href= "{% static 'feedback/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+
+    <link href= "{% static 'feedback/css/simple-sidebar.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'feedback/css/jquery-ui-slider-pips.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'feedback/css/jquery-ui.min.css' %}" rel="stylesheet" type="text/css">
+    
+
+    <!--link href="{% static 'feedback/dashboard.css' %}" rel="stylesheet" type="text/css"-->
+
+    <script src="{% static 'feedback/js/ie-emulation-modes-warning.js' %}"></script>
+
+  </head>
+
+  <body>
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">Feedback Portal</li>
+                <li class="active"><a href="/feedback/prof/home/">Home</a></li>
+                <li><a href="/feedback/logout/">Logout</a></li>
+            </ul>
+        </div>
+
+
+        <div id="page-content-wrapper">
+            <a class="navbar-toggle" href="#menu-toggle" id="menu-toggle">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <div id="brand-toggle">feedback Portal</div>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+
+
+
 <h2 class="page-header">{{ course_name }}</h2>
 
+{% load staticfiles %}
+
+    <script src="{% static 'feedback/js/jquery-1.11.1.min.js' %}"></script>
+    <script src="{% static 'feedback/js/highcharts.js' %}"></script>
+
+
+<div id="{{ chart.get_html_id }}" style="width: {{ chart.width }}px; height: {{ chart.height }}px;"></div>
+<script>
+$(function () {
+    $('#{{ chart.get_html_id }}').highcharts({
+        chart: {
+            type: "{{ chart.get_chart_type }}"
+        },
+        title: {
+            text: "{{ chart.get_options.title }}"
+        },
+        xAxis: {
+            categories: {{ chart.get_categories|safe }},
+            title: {
+                text: '{{ chart.get_x_axis_title }}'
+            }
+        },
+        series: {{ chart.get_series|safe }}
+    });
+});
+</script>
+
+
 {% if tasks %}
-<p>List of feedbacks given by students on this course.</p>
+<hr>
+<h3 style="margin-top:40px;">List of Feedbacks</h3>
 <table class="table table-striped" style="margin-top:20px;">
     <thead>
-        <th>Date Given</th>
+        <th></th>
     </thead>
     
     <tbody>
@@ -22,4 +99,25 @@
     <p>No feedbacks are given for this course yet.</p>
 {%endif %}
 
-{% endblock %}
+
+
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{% static 'feedback/js/bootstrap.min.js' %}"></script>
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    </script>
+  </body>
+</html>

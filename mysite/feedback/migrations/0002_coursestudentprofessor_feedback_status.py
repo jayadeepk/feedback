@@ -12,9 +12,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='rating',
-            field=models.IntegerField(default=0),
+            model_name='coursestudentprofessor',
+            name='feedback_status',
+            field=models.BooleanField(default=False),
             preserve_default=True,
         ),
     ]

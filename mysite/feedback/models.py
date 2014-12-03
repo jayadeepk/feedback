@@ -26,6 +26,16 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
+class CourseProfessor(models.Model):
+    """
+    Many to many relation between Course and Professor
+    """
+    course = models.ForeignKey(Course)
+    professor = models.ForeignKey(Professor)
+
+    def __str__(self):
+        return self.professor.user.username
+
 class CourseStudent(models.Model):
     """
     Many to many relation between Course and User
@@ -33,20 +43,13 @@ class CourseStudent(models.Model):
     course = models.ForeignKey(Course)
     student = models.ForeignKey(Student)
     feedback_status = models.BooleanField(default=False)
+    courseprofessor = models.ManyToManyField(CourseProfessor, through='CourseStudentProfessor')
 
     def __str__(self):
-        return self.student.user.username
-
-
-class CourseProfessor(models.Model):
-    """
-    Many to many relation between Course and User
-    """
-    course = models.ForeignKey(Course)
-    professor = models.ForeignKey(Professor)
-
-    def __str__(self):
-        return self.professor.user.username
+        string = self.course.name
+        string+= " - "
+        string+= self.student.user.username
+        return string
 
 class Task(models.Model):
     """
@@ -69,17 +72,30 @@ class Task(models.Model):
         return self.student.user.username
 
 
+class CourseStudentProfessor(models.Model):
+    """
+    Link between a CourseStudent and a CourseProfessor
+    """
+    coursestudent = models.ForeignKey(CourseStudent)
+    courseprofessor = models.ForeignKey(CourseProfessor)
+    feedback_status = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.courseprofessor.professor.user.username
+
 class TaskProfessor(models.Model):
     """
-    Feedback(task) on each professor
+    Feedback about each professor.
     """
-    task = models.ForeignKey(Task)
-    task = models.ForeignKey(Task)
+    coursestudentprofessor = models.ForeignKey(CourseStudentProfessor)
     rating1 = models.IntegerField(default=2)
     rating2 = models.IntegerField(default=2)
     rating3 = models.IntegerField(default=2)
     strong_points = models.TextField()
     weak_points = models.TextField()
+
+    def __str__(self):
+        return self.coursestudentprofessor.courseprofessor.professor.user.username
 
 class Permissions(models.Model):
     """

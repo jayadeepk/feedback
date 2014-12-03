@@ -31,13 +31,17 @@ class TaskProfessorForm(ModelForm):
     """
     Generates a form from 'Task' model with fields related to a course.
     """
-    strong_points = forms.CharField(label='Strong points',
+    model = models.Task
+    rating1 = forms.IntegerField(label='', initial=2, widget = forms.HiddenInput())
+    rating2 = forms.IntegerField(label='', initial=2, widget = forms.HiddenInput())
+    rating3 = forms.IntegerField(label='', initial=2, widget = forms.HiddenInput())
+    strong_points = forms.CharField(label='Strong points about the professor:',
                                 widget=forms.Textarea(attrs={'cols': 50, 'rows': 6}))
-    weak_points = forms.CharField(label='Weak points',
+    weak_points = forms.CharField(label='Weak points about the professor:',
                                     widget=forms.Textarea(attrs={'cols': 50, 'rows': 6}))
     class Meta:
-        model = models.Task
-        fields = ('strong_points', 'weak_points',)
+        model = models.TaskProfessor
+        fields = ('rating1', 'rating2', 'rating3', 'strong_points', 'weak_points',)
 
 
 class CaptchaTestForm(forms.Form):

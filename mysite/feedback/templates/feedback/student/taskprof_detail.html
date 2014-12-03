@@ -7,37 +7,37 @@
     <link href="{% static 'feedback/css/jquery-ui.min.css' %}" rel="stylesheet" type="text/css">
 
 
-<h2 class="page-header">{{course_name}}</h2>
-<p style="width:80%; margin: 20px 0px 40px 0px;">{{course.message}}</p>
-
-<h4 style="margin:20px 0px 0px 0px;">Feedback on overall Course</h4>
-<form action="/feedback/{{ course.id }}/student/submitted/" method="post">
+<h2 class="page-header">Feedback on {{ professor_name }}</h2>
+<form action="/feedback/{{ coursestudentprofessor_id }}/student/prof/submitted/" method="post">
     {% csrf_token %}
     <table style="border-collapse: separate; border-spacing: 15px 5px;">
         <tr>
             <td>1)</td>
-            <td width = "300px;">Overall the course was excellent:</td>
+            <td width = "300px;">Overall, the instruction was excellent:</td>
             <td><div id="rating_slide1" style="width: 250px; margin: 50px 40px 60px 20px;"></div></td>
         </tr>
         <tr>
             <td>2)</td>
-            <td width = "300px;">The content of the course was appropriate:</td>
+            <td width = "300px;">The concepts were explained with clarity:</td>
             <td><div id="rating_slide2" style="width: 250px; margin: 50px 40px 60px 20px;"></div></td>
         </tr>
         <tr>
             <td>3)</td>
-            <td width="300px">Text/Reference materials were appropriate for the course:</td>
+            <td width="300px">Questions and discussions were encouraged:</td>
             <td><div id="rating_slide3" style="width: 250px; margin: 50px 40px 60px 20px;"></div></td>
         </tr>
     </table>
     <table style="border-collapse: separate; border-spacing: 15px 5px; margin-top: 50px;">
         {{ form.id }}
+        <tr>{{ form.rating1 }}</tr>
+        <tr>{{ form.rating2 }}</tr>
+        <tr>{{ form.rating3 }}</tr>
         <tr>
             <td valign="top">4)</td>
             <td>
                 <div>
-                <p>{{ form.opinion.label }}</p>
-                <p style="margin-left:20px; margin-top:20px">{{ form.opinion }}</p>
+                <p>{{ form.strong_points.label }}</p>
+                <p style="margin-left:20px; margin-top:20px">{{ form.strong_points }}</p>
                 </div>
             </td>
         </tr>
@@ -45,29 +45,14 @@
             <td valign="top">5)</td>
             <td>
                 <div>
-                    <p>{{ form.suggestions.label }}</p>
-                    <p style="margin-left:20px; margin-top:20px">{{ form.suggestions }}</p>
+                    <p>{{ form.weak_points.label }}</p>
+                    <p style="margin-left:20px; margin-top:20px">{{ form.weak_points }}</p>
                 </div>
             </td>
         </tr>
     </table>
-    <hr>
-    <h4> Submit the feedback about the course</h4>
-    <button type="submit" class="submit">Submit</button>
+    <button type="submit" class="submit" style="margin-left: 60px;">Submit</button>
 </form>
-<hr>
-<h4>Or, Proceed to give feedback about each professor</h4>
-<table  style="margin:0px">
-    <tr>
-    {% for courseprofessor in courseprofessors %}
-        <form action="#">
-            <td>
-                <button type="submit" class="submit">{{ courseprofessor.professor.user.username }}</button>
-            </td>
-        </form>
-   	{% endfor %}
-    </tr>
-</table>
 
     <script src="{% static 'feedback/js/jquery-1.11.1.min.js' %}"></script>
     <script src="{% static 'feedback/js/jquery-ui.min.js' %}"></script>

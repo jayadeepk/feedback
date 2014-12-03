@@ -47,6 +47,17 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='CourseStudentProfessor',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('courseprofessor', models.ForeignKey(to='feedback.CourseProfessor')),
+                ('coursestudent', models.ForeignKey(to='feedback.CourseStudent')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='Permissions',
             fields=[
                 ('user', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
@@ -79,6 +90,9 @@ class Migration(migrations.Migration):
             name='Task',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('rating1', models.IntegerField(default=2)),
+                ('rating2', models.IntegerField(default=2)),
+                ('rating3', models.IntegerField(default=2)),
                 ('opinion', models.TextField()),
                 ('suggestions', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
@@ -94,13 +108,22 @@ class Migration(migrations.Migration):
             name='TaskProfessor',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('rating1', models.IntegerField(default=2)),
+                ('rating2', models.IntegerField(default=2)),
+                ('rating3', models.IntegerField(default=2)),
                 ('strong_points', models.TextField()),
                 ('weak_points', models.TextField()),
-                ('task', models.ForeignKey(to='feedback.Task')),
+                ('coursestudentprofessor', models.ForeignKey(to='feedback.CourseStudentProfessor')),
             ],
             options={
             },
             bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='coursestudent',
+            name='courseprofessor',
+            field=models.ManyToManyField(to='feedback.CourseProfessor', through='feedback.CourseStudentProfessor'),
+            preserve_default=True,
         ),
         migrations.AddField(
             model_name='coursestudent',

@@ -14,6 +14,7 @@
 <form action="/feedback/{{ course.id }}/student/submitted/" method="post">
     {% csrf_token %}
     <table style="border-collapse: separate; border-spacing: 15px 5px;">
+
         <tr>
             <td>1)</td>
             <td width = "300px;">Overall the course was excellent:</td>
@@ -32,6 +33,9 @@
     </table>
     <table style="border-collapse: separate; border-spacing: 15px 5px; margin-top: 50px;">
         {{ form.id }}
+        <tr>{{ form.rating1 }}</tr>
+        <tr>{{ form.rating2 }}</tr>
+        <tr>{{ form.rating3 }}</tr>
         <tr>
             <td valign="top">4)</td>
             <td>
@@ -59,10 +63,10 @@
 <h4>Or, Proceed to give feedback about each professor</h4>
 <table  style="margin:0px">
     <tr>
-    {% for courseprofessor in courseprofessors %}
-        <form action="#">
+    {% for coursestudentprofessor in coursestudentprofessors %}
+        <form action="/feedback/{{ coursestudentprofessor.id }}/student/prof">
             <td>
-                <button type="submit" class="submit">{{ courseprofessor.professor.user.username }}</button>
+                <button type="submit" class="submit">{{ coursestudentprofessor.courseprofessor.professor.user.username }}</button>
             </td>
         </form>
    	{% endfor %}

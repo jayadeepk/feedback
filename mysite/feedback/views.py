@@ -9,8 +9,17 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404
 from feedback import forms
-from feedback.models import Task, Course, Student, Professor
+from feedback.models import Task, Course, Student, Professor, CourseStudentProfessor
 from django.contrib.auth.models import Group
+from django.views.generic.base import TemplateView
+import random
+
+from graphos.renderers import highcharts
+from graphos.sources.simple import SimpleDataSource
+import json
+import time
+import urllib2
+import datetime
 
 
 #----------------------------------------------------------------
@@ -118,13 +127,13 @@ def student_course_detail(request, course_id):
     if(coursestudent.feedback_status):
         return HttpResponseRedirect("/feedback/student/home/")
 
-    courseprofessors = course.courseprofessor_set.all()
+    coursestudentprofessors = coursestudent.coursestudentprofessor_set.all()
 
     return render_to_response('feedback/student/course_detail.html',
                             {'course':course,
                             'course_name': course.name.capitalize(),
                             'form': forms.TaskForm(),
-                            'courseprofessors': courseprofessors},
+                            'coursestudentprofessors': coursestudentprofessors},
                             context_instance=RequestContext(request))
 
 
@@ -153,10 +162,72 @@ def student_course_form_submitted(request, course_id):
             task.save()
             coursestudent.feedback_status = False
             coursestudent.save()
-            return HttpResponse(task.rating)
         else:
             return HttpResponse('Not valid')
     return HttpResponseRedirect("/feedback/student/home/")
+
+
+@login_required(login_url="/feedback/")
+def taskprof_detail(request, coursestudentprofessor_id):
+    """
+    Takes feedback about a particular professor of a course from
+    """
+    try:
+        student = request.user.student
+    except Student.DoesNotExist:
+        raise Http404
+    coursestudentprofessor = get_object_or_404(CourseStudentProfessor, id=coursestudentprofessor_id)
+    course = coursestudentprofessor.coursestudent.course
+    professor_name = coursestudentprofessor.courseprofessor.professor.user.username
+
+    if(coursestudentprofessor.feedback_status):
+        response = "/feedback/"
+        response+= str(course.id)
+        response+= "/student/course/"
+        return HttpResponseRedirect(response)
+
+    return render_to_response('feedback/student/taskprof_detail.html',
+                            {'course':course,
+                            'professor_name': professor_name.capitalize(),
+                            'coursestudentprofessor_id':coursestudentprofessor.id,
+                            'form': forms.TaskProfessorForm(),},
+                            context_instance=RequestContext(request))
+
+@login_required(login_url="/feedback/")
+def taskprof_submitted(request, coursestudentprofessor_id):
+    """
+    Saves the feedback form on the overall course
+    """
+    try:
+        student = request.user.student
+    except Student.DoesNotExist:
+        raise Http404
+    coursestudentprofessor = get_object_or_404(CourseStudentProfessor, id=coursestudentprofessor_id)
+    course = coursestudentprofessor.coursestudent.course
+
+    if(coursestudentprofessor.feedback_status):
+        response = "/feedback/"
+        response+= course.id
+        response+= "/student/course/"
+        return HttpResponseRedirect(response)
+
+    if request.method == 'POST':
+        form = forms.TaskProfessorForm(request.POST)
+        if form.is_valid():
+            taskprof = form.save(commit=False)
+            taskprof.courseprofessor = coursestudentprofessor.courseprofessor
+            taskprof.coursestudent = coursestudentprofessor.coursestudent
+            taskprof.coursestudentprofessor = coursestudentprofessor
+            taskprof.save()
+            coursestudentprofessor.feedback_status = False
+            coursestudentprofessor.save()
+        else:
+            return HttpResponse('Not valid')
+            
+    response = "/feedback/"
+    response+= str(course.id)
+    response+= "/student/course/"
+    return HttpResponseRedirect(response)
 
 
 #------------------------------------------------------------
@@ -198,12 +269,23 @@ def prof_course_detail(request, course_id):
         raise Http404
     course = get_object_or_404(professor.course_set, id=course_id)
     coursestudents = course.coursestudent_set.all()
+
+    renderer = highcharts
+    data =  [
+            ['', 'Rating on Overall Course', 'Content of the Course', 'Text materials appropriate'],
+            ['Course', 3.9, 4.5, 2.8],
+            ['Professor', 2.9, 3.1, 4.5],
+        ]
+
+    Chart = renderer.BarChart(SimpleDataSource(data=data), options={'title': "Feedback Statistics"}, html_id="bar_chart")
+
     tasks = []
     for coursestudent in coursestudents:
         if coursestudent.task_set.first() is not None:
             tasks.append(coursestudent.task_set.first())
     return render_to_response('feedback/prof/course_detail.html',
                             {'tasks':tasks,
+                            'chart':Chart,
                             'course_name':course.name.capitalize(),},
                             context_instance=RequestContext(request))
 
@@ -221,3 +303,21 @@ def prof_task_detail(request, task_id):
                             {'task':task,
                             'course_name':task.course.name.capitalize(),},
                             context_instance=RequestContext(request))
+
+
+def highcharts_demo(request):
+    renderer = highcharts
+    data =  [
+            ['', 'Rating on Overall Course', 'Content of the Course', 'Text materials appropriate'],
+            ['Course', 3.9, 4.5, 2.8],
+            ['Professor', 2.9, 3.1, 4.5],
+        ]
+    Chart = renderer.BarChart(SimpleDataSource(data=data), options={'title': "Feedback Statistics"}, html_id="bar_chart")
+    return render_to_response('feedback/prof/highcharts.html',
+                            {'chart': Chart,},
+                            context_instance=RequestContext(request))
+
+# class HighChartsDemo(Demo):
+#     template_name = "feedback/prof/highcharts.html"
+
+# highcharts_demo = HighChartsDemo.as_view(renderer=highcharts)

@@ -9,8 +9,12 @@ urlpatterns = [
         url('student/home/$', views.student_home, name='student_home'),
         url(r'^(?P<course_id>\d+)/student/course/$',views.student_course_detail),
         url(r'^(?P<course_id>\d+)/student/submitted/$',views.student_course_form_submitted),
+        url(r'^(?P<coursestudentprofessor_id>\d+)/student/prof/$',views.taskprof_detail),
+        url(r'^(?P<coursestudentprofessor_id>\d+)/student/prof/submitted/$',views.taskprof_submitted),
 
         url('prof/home/$', views.prof_home, name='prof_home'),
         url(r'^(?P<course_id>\d+)/prof/course/$',views.prof_course_detail),
         url(r'^(?P<task_id>\d+)/prof/feedback/$',views.prof_task_detail),
+
+        url(r'^highcharts/$', views.highcharts_demo, name='demo_highcharts_demo'),
 ]
