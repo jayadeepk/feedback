@@ -37,9 +37,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'feedback',
-    'captcha',
-    'floppyforms',
     'graphos',
+    'nocaptcha_recaptcha',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -88,3 +87,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = "/feedback/static/"
 
 LOGIN_URL="/feedback/"
+
+
+# Django-Nocaptcha-Recatpcha Settings
+# based on new google recatpcha
+# Note that, for development purpose, any key works locally
+NORECAPTCHA_SITE_KEY = '6LcFaf8SAAAAALPnRhb5TNc0JgoC2GzK8RA062K5'
+NORECAPTCHA_SECRET_KEY = '6LcFaf8SAAAAAAbTYNPDzIRNLBq4iJYFJqVvvxQU'

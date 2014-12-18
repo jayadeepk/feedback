@@ -30,14 +30,16 @@ def login(request):
     """
     Authenticates user from the username and password from POST
     """
+    form_errors = None
     if request.POST:
         form = forms.CaptchaTestForm(request.POST)
         if form.is_valid():
             username = request.POST.get('username', '')
             password = request.POST.get('password', '')
             user = auth.authenticate(username=username, password=password)
+            auth.login(request, user)
             if user is not None:
-                auth.login(request, user)
+                # Check whether user is student or professor
                 try:
                     student = request.user.student
                 except Student.DoesNotExist:
@@ -51,17 +53,12 @@ def login(request):
                 elif professor is not None and student is None:
                     return HttpResponseRedirect('/feedback/prof/home/')
                 else:
-                    response = str(student)
-                    response+=str(professor)
-                    return HttpResponse(response)
+                    auth.logout(request)
+                    form_errors = 'You are not registered as student or professor'
 
             else:
                 # Return an 'invalid login' error message.
                 form_errors = 'The username or password did not match with our records.'
-                return render_to_response('feedback/login.html',
-                                {'form_errors': form_errors,
-                                'captchaform':form,},
-                                context_instance = RequestContext(request))
         else:
                 form_errors = 'You have entered an incorrect captcha.'
                 return render_to_response('feedback/login.html',
@@ -70,7 +67,8 @@ def login(request):
                                 context_instance = RequestContext(request))
     form = forms.CaptchaTestForm()
     return render_to_response('feedback/login.html',
-                            {'captchaform':form,},
+                            {'form_errors': form_errors,
+                            'captchaform':form,},
                             context_instance = RequestContext(request))
 
 @login_required(login_url="/feedback")

@@ -4,8 +4,7 @@ from django.utils import timezone
 from django.forms import ModelForm
 from django.utils.translation import ugettext_lazy as _
 from django import forms
-
-from captcha.fields import CaptchaField
+from nocaptcha_recaptcha.fields import NoReCaptchaField
 
 class TaskForm(ModelForm):
     """
@@ -45,4 +44,4 @@ class TaskProfessorForm(ModelForm):
 
 
 class CaptchaTestForm(forms.Form):
-    captcha = CaptchaField()
+    captcha = NoReCaptchaField(label='')
