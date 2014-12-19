@@ -56,26 +56,54 @@
     <script src="{% static 'feedback/js/jquery-1.11.1.min.js' %}"></script>
     <script src="{% static 'feedback/js/highcharts.js' %}"></script>
 
-
-<div id="{{ chart.get_html_id }}" style="width: {{ chart.width }}px; height: {{ chart.height }}px;"></div>
+<div id="{{ chart.get_html_id }}" style="width: 600px; height: 360px; padding-right: 100px"></div>
 <script>
 $(function () {
     $('#{{ chart.get_html_id }}').highcharts({
         chart: {
-            type: "{{ chart.get_chart_type }}"
+            type: "bar"
         },
         title: {
             text: "{{ chart.get_options.title }}"
+        },
+        plotOptions: {
+            bar: {
+                dataLabels: {
+                    enabled: true
+                }
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'top',
+            x: 10,
+            y: 147,
+            floating: true,
+            borderWidth: 1,
+            backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+            shadow: true
+        },
+        credits: {
+            enabled: false
+        },
+        yAxis: {
+            min:1,
+            max: 5,
+            title: {
+                text: ''
+            }
         },
         xAxis: {
             categories: {{ chart.get_categories|safe }},
             title: {
                 text: '{{ chart.get_x_axis_title }}'
-            }
+            },
         },
         series: {{ chart.get_series|safe }}
     });
 });
+
 </script>
 
 

@@ -302,7 +302,7 @@ def prof_course_detail(request, course_id):
             professor_rating3_average += taskprofessor.rating3
             taskprofessors.append(taskprofessor)
     number_of_taskprofessors = len(tasks)
-    f len(taskprofessors) is not 0:
+    if len(taskprofessors) is not 0:
         professor_rating1_average /= len(taskprofessors)
         professor_rating1_average += 1
         professor_rating2_average /= len(taskprofessors)
@@ -312,9 +312,9 @@ def prof_course_detail(request, course_id):
 
     renderer = highcharts
     data =  [
-            ['', 'Rating on Overall Course', 'Content of the Course', 'Text materials appropriate'],
-            ['Course', course_rating1_average, course_rating2_average, course_rating3_average],
-            ['Professor', professor_rating1_average, professor_rating2_average, professor_rating3_average],
+            ['', 'Overall Course', 'Content of the Course', 'Text materials appropriate'],
+            ['Course Rating', course_rating1_average, course_rating2_average, course_rating3_average],
+            ['Professor Rating', professor_rating1_average, professor_rating2_average, professor_rating3_average],
         ]
 
     Chart = renderer.BarChart(SimpleDataSource(data=data), options={'title': "Feedback Statistics"}, html_id="bar_chart")
