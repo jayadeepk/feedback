@@ -15,3 +15,6 @@ Note that while logging in as student/professor, the server needs to be connecte
 - After installing Python 2.7, download Django 1.7, extract it and install using `python2 setup.py install` inside the source folder.
 - Now, clone the repository and go to `feedback/feedback/` folder to find the file 'manage.py'. In the terminal, enter `python2 manage.py migrate` to migrate the database. In case you get any error you might need to enter `python2 manage.py makemigrations feedback` before migrating.
 - To run the server, enter `python2 manage.py runserver` in the same folder and to access it type `localhost:8000/feedback` in browser and login.
+
+##### For contributors
+- [Database schema](https://dl.dropboxusercontent.com/u/6389632/feedback_website_database.html)

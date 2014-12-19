@@ -15,6 +15,4 @@ urlpatterns = [
         url('prof/home/$', views.prof_home, name='prof_home'),
         url(r'^(?P<course_id>\d+)/prof/course/$',views.prof_course_detail),
         url(r'^(?P<task_id>\d+)/prof/feedback/$',views.prof_task_detail),
-
-        url(r'^highcharts/$', views.highcharts_demo, name='demo_highcharts_demo'),
 ]

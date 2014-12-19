@@ -154,8 +154,6 @@ def student_course_form_submitted(request, course_id):
         form = forms.TaskForm(request.POST)
         if form.is_valid():
             task = form.save(commit=False)
-            task.student = student
-            task.course = course
             task.coursestudent = coursestudent
             task.save()
             coursestudent.feedback_status = False
@@ -267,20 +265,60 @@ def prof_course_detail(request, course_id):
         raise Http404
     course = get_object_or_404(professor.course_set, id=course_id)
     coursestudents = course.coursestudent_set.all()
+    courseprofessor = course.courseprofessor_set.filter(professor=professor)
+
+
+    course_rating1_average = 0.0
+    course_rating2_average = 0.0
+    course_rating3_average = 0.0
+    professor_rating1_average = 0.0
+    professor_rating2_average = 0.0
+    professor_rating3_average = 0.0
+
+    # Calculate average of all the ratings on the course
+    tasks = []
+    for coursestudent in coursestudents:
+        if coursestudent.task_set.first() is not None:
+            course_rating1_average += coursestudent.task_set.first().rating1
+            course_rating2_average += coursestudent.task_set.first().rating2
+            course_rating3_average += coursestudent.task_set.first().rating3
+            tasks.append(coursestudent.task_set.first())
+    number_of_tasks = len(tasks)
+    if len(tasks) is not 0:
+        course_rating1_average /= len(tasks)
+        course_rating1_average += 1
+        course_rating2_average /= len(tasks)
+        course_rating2_average += 1
+        course_rating3_average /= len(tasks)
+        course_rating3_average += 1
+
+    # Calculate average of all the ratings on the professor
+    taskprofessors = []
+    for coursestudent in coursestudents:
+        taskprofessor = coursestudent.coursestudentprofessor_set.get(courseprofessor=courseprofessor).taskprofessor_set.first()
+        if taskprofessor is not None:
+            professor_rating1_average += taskprofessor.rating1
+            professor_rating2_average += taskprofessor.rating2
+            professor_rating3_average += taskprofessor.rating3
+            taskprofessors.append(taskprofessor)
+    number_of_taskprofessors = len(tasks)
+    f len(taskprofessors) is not 0:
+        professor_rating1_average /= len(taskprofessors)
+        professor_rating1_average += 1
+        professor_rating2_average /= len(taskprofessors)
+        professor_rating2_average += 1
+        professor_rating3_average /= len(taskprofessors)
+        professor_rating3_average += 1
 
     renderer = highcharts
     data =  [
             ['', 'Rating on Overall Course', 'Content of the Course', 'Text materials appropriate'],
-            ['Course', 3.9, 4.5, 2.8],
-            ['Professor', 2.9, 3.1, 4.5],
+            ['Course', course_rating1_average, course_rating2_average, course_rating3_average],
+            ['Professor', professor_rating1_average, professor_rating2_average, professor_rating3_average],
         ]
 
     Chart = renderer.BarChart(SimpleDataSource(data=data), options={'title': "Feedback Statistics"}, html_id="bar_chart")
 
-    tasks = []
-    for coursestudent in coursestudents:
-        if coursestudent.task_set.first() is not None:
-            tasks.append(coursestudent.task_set.first())
     return render_to_response('feedback/prof/course_detail.html',
                             {'tasks':tasks,
                             'chart':Chart,
@@ -301,21 +339,3 @@ def prof_task_detail(request, task_id):
                             {'task':task,
                             'course_name':task.course.name.capitalize(),},
                             context_instance=RequestContext(request))
-
-
-def highcharts_demo(request):
-    renderer = highcharts
-    data =  [
-            ['', 'Rating on Overall Course', 'Content of the Course', 'Text materials appropriate'],
-            ['Course', 3.9, 4.5, 2.8],
-            ['Professor', 2.9, 3.1, 4.5],
-        ]
-    Chart = renderer.BarChart(SimpleDataSource(data=data), options={'title': "Feedback Statistics"}, html_id="bar_chart")
-    return render_to_response('feedback/prof/highcharts.html',
-                            {'chart': Chart,},
-                            context_instance=RequestContext(request))
-
-# class HighChartsDemo(Demo):
-#     template_name = "feedback/prof/highcharts.html"
-
-# highcharts_demo = HighChartsDemo.as_view(renderer=highcharts)
